@@ -211,6 +211,8 @@ ___
 
 This option utilizes the trigger vibrations in modern Xbox controllers. The sliders determine the strength of the vibration feedback on each trigger.
 
+Trigger feedback requires dedicated impulse-trigger motors. [Xbox 360 controllers do not have these motors](https://learn.microsoft.com/en-us/windows/uwp/gaming/gamepad-and-vibration#vibration-and-impulse-triggers); set both trigger feedback sliders to `0%` on these controllers and use [Rumble](#rumble) for regular controller vibration.
+
 Left trigger vibrations are sent during braking, and right trigger vibrations are sent when accelerating. By default the left and right triggers only vibrate if ABS and TCS are turned off respectively, but the [Trigger feedback with ABS/TCS](#trigger-feedback-with-abstcs) can change this.
 
 The vibrations will start out light as you're approaching the grip limit, and become strong if you exceed it. For example when braking in cars with no ABS, you'd want to modulate the left trigger such that you feel a light vibration the whole time, which means you're using most of the available grip without locking up.
@@ -227,7 +229,7 @@ ___
 
 ### Factory reset
 
-Resets every setting to its default value, just like having the mod freshly installed (except for saved presets, those are kept).
+Resets the assist settings to their defaults, just like having the mod freshly installed. Saved presets and the game's rumble strength are kept.
 
 You have to click it twice to confirm.
 
@@ -251,4 +253,6 @@ ___
 
 ### Rumble
 
-Controls AC's own ***Rumble effects*** setting.
+Controls AC's own ***Rumble effects*** setting for regular controller vibration. This is separate from the [trigger feedback](#left--right-trigger-feedback) sliders. Set it above `0%` to enable regular rumble; at `0%`, the assist explicitly silences the regular vibration outputs.
+
+The existing rumble setting is preserved on first installation. If a previous installation left this at `0%`, increase it here; reinstalling will preserve the saved value.
