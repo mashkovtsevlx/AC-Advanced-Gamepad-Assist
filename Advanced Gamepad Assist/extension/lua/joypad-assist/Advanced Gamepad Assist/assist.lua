@@ -129,8 +129,11 @@ local function readGameControls()
     else
         uiData._gameGamma    = lastGameGamma
         uiData._gameDeadzone = lastGameDeadzone
-        uiData._gameRumble   = lastGameRumble
     end
+
+    -- Keep the shared value in sync on first install too: updateConfig() would
+    -- otherwise save its initial zero over the existing game rumble setting.
+    uiData._gameRumble = lastGameRumble
 end
 
 ac.onSharedEvent("AGA_factoryReset", function()

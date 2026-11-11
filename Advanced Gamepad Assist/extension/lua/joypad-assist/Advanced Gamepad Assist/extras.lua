@@ -327,7 +327,9 @@ M.update = function(vData, uiData, absInitialSteering, dt)
             local signedSpeed       = vData.localVel.z * math.sign(lib.zeroGuard(vData.vehicle.gear))
             local reverseProtection = (signedSpeed < -0.5 and vData.inputData.gas < 0.01 and vData.vehicle.gear ~= 0)
 
-            if normalizedRPM > 0.1 and vData.inputData.gas >= 0.01 and vData.inputData.brake < 0.01 and vData.inputData.handbrake < 0.01 then
+            -- Wheel speed can keep the engine above stall RPM with the throttle closed.
+            -- Engage in that case too, including when the assist starts while rolling.
+            if minSpeedReached or (normalizedRPM > 0.1 and vData.inputData.gas >= 0.01 and vData.inputData.brake < 0.01 and vData.inputData.handbrake < 0.01) then
                 autoClutchRaw = true
             end
 
@@ -338,20 +340,22 @@ M.update = function(vData, uiData, absInitialSteering, dt)
             if vData.vehicle.tractionControlInAction then clutchFreeze = true end -- // FIXME this doesn't really work
 
             if (crawlSpeedNorm > 0.9999) then clutchEngagedBiasRaw = true end
-            local currentEngagedBias = clutchEngagedBias:getWithRateMult(clutchEngagedBiasRaw and 1.0 or 0.0, dt, (vData.vehicle.gas ^ 1.5) * 0.8 + 0.2) ^ 2.0 -- This will pull the clutch towards 1.0 when a safe speed has been reached
+            -- Use the current assisted pedal input consistently. The car's reported gas can
+            -- be remapped by car physics/Lua and is not comparable to the raw pedal input.
+            local launchThrottle = lib.clamp01(vData.inputData.gas)
+            local currentEngagedBias = clutchEngagedBias:getWithRateMult(clutchEngagedBiasRaw and 1.0 or 0.0, dt, (launchThrottle ^ 1.5) * 0.8 + 0.2) ^ 2.0 -- This will pull the clutch towards 1.0 when a safe speed has been reached
 
             local clutchStateOverride = (not minSpeedReached) and 0.0 or 1.0 -- In case the launch is aborted or something, this will be the new value of the clutch
 
             if autoClutchRaw then
                 rawClutchEngagedTime = rawClutchEngagedTime + dt
 
-                local RPMTarget = math.lerp(0.7, 0.2, safeSpeedNorm) * math.sqrt(vData.vehicle.gas) -- Normalized RPM targeted by the clutch controller during a launch
+                local RPMTarget = math.lerp(0.7, 0.2, safeSpeedNorm) * math.sqrt(launchThrottle) -- Normalized RPM targeted by the clutch controller during a launch
 
                 clutchController:setSetpoint(RPMTarget)
                 local newTarget = clutchTarget
                 if not clutchFreeze and not notLaunching then newTarget = clutchController:get(math.lerp(normalizedRPM, RPMTarget, currentEngagedBias), dt) end
 
-                newTarget = lib.clamp01(newTarget - (M.rawThrottle - vData.vehicle.gas)) -- // FIXME not the best workaround
                 clutchTarget = notLaunching and clutchStateOverride or newTarget
                 clutchTarget = math.lerp(clutchTarget, 1.0, currentEngagedBias)
             else
