@@ -2,6 +2,10 @@
 
 Reviewed all nine issues, including discussions, on 2026-11-11: four open and five closed in the [repository tracker](https://github.com/adam10603/AC-Advanced-Gamepad-Assist/issues). Changes target `develop`, which includes the existing [vehicle-reference fix](https://github.com/adam10603/AC-Advanced-Gamepad-Assist/pull/59).
 
+## Submission permissions
+
+On 2026-11-11, the [upstream repository API](https://api.github.com/repos/adam10603/AC-Advanced-Gamepad-Assist) reported `has_pull_requests: true` and `pull_request_creation_policy: collaborators_only`. The authenticated contributor has read access, so both draft and non-draft creation were rejected. This is a repository contribution policy, not a missing token scope or a draft restriction. A review PR can be opened in the fork against its `develop` branch, which matches upstream [bb415d9](https://github.com/adam10603/AC-Advanced-Gamepad-Assist/commit/bb415d94d807291614e4bd180798ce5894cad762). Upstream submission requires the maintainer to allow external contributors or grant collaborator access.
+
 ## Open issues
 
 | Issue | Result of this change | Remaining evidence needed |
@@ -49,7 +53,7 @@ The runner compiles all production Lua files without executing them, then runs i
 
 Each Lua test accepts an optional source-file path for comparison with a previous revision. CSP APIs and vehicle state are simulated. These tests establish the Lua failures and boundary behavior; they do not simulate engine/wheel dynamics, native vibration output, live calibration, game crashes or wheel rendering.
 
-## In-game checks before marking the PR ready
+## Remaining in-game validation
 
 - On the cars/apps named in [#57](https://github.com/adam10603/AC-Advanced-Gamepad-Assist/issues/57), compare stock and modified throttle behavior during launch, automatic shifts, closed-throttle coasting and stall recovery. Exercise TCS activation/release, reverse, manual clutch, handbrake and keyboard assistance.
 - With a nonzero existing rumble setting, start a fresh AGA configuration and verify that rumble stays unchanged. Repeat with saved zero and nonzero settings. On Xbox 360, compare regular rumble with AGA off/on and both trigger sliders at zero; also test a compatible impulse-trigger controller.
